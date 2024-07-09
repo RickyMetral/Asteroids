@@ -1,0 +1,10 @@
+
+#Virtual Environment
+.venv
+
+#Pycache
+__pycache__
+
+#Studio Code Build tools 
+vs_BuildTools.exe   
+.vscode
