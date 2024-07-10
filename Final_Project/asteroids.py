@@ -9,11 +9,13 @@ from ship import Ship
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self,screen_height, screen_width, wave, ship_x, ship_y):
         super().__init__()
-        self.image = pygame.image.load("bullet.png")
+        min_size = .15
+        max_size = .6
+        asteroids = ["asteroid_images/asteroid1.png", "asteroid_images/asteroid2.png", "asteroid_images/asteroid3.png", "asteroid_images/asteroid4.png", "asteroid_images/asteroid5.png", "asteroid_images/asteroid6.png", "asteroid_images/asteroid7.png"]
+        self.image = pygame.image.load(asteroids[random.randrange(7)])
         self.velocity  = 5*math.log(wave+1)
         self.screen_width = screen_width
         self.screen_height = screen_height
-
         #Dict of the ranges the asteroid can spawn in relation to the screen
         self.spawn_ranges = {
             "top" :[(0,screen_width),(-100,0)],
@@ -27,7 +29,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.point = np.array([random.randrange(int(ship_x-150), int(ship_x+150)), random.randrange(int(ship_y-150),int(ship_y+150))])#
         self.distance = math.sqrt((self.point[0]-self.x)**2 + (self.point[1]-self.y)**2)
         self.vector =np.array([(self.point[0]-self.x), (self.point[1]-self.y)])
-        self.image = pygame.transform.rotozoom(self.image, 90, .1)
+        self.image = pygame.transform.rotozoom(self.image, random.randrange(0, 360), random.uniform(min_size, max_size))
         self.rect = self.image.get_rect(center = (self.x, self.y))
         self.point[0] += 5*self.vector[0]
         self.point[1] += 5*self.vector[1]
@@ -45,7 +47,6 @@ class Asteroid(pygame.sprite.Sprite):
    
     def update(self):
         """Updates the position of the asteroid and moves endpoint further if asteroid gets too close"""
-       
         self.distance = math.sqrt((self.point[0]-self.x)**2 + (self.point[1]-self.y)**2)
         self.x+= self.velocity*(self.point[0]-self.x)/self.distance
         self.y+= self.velocity*(self.point[1]-self.y)/self.distance

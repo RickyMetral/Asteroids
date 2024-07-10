@@ -15,11 +15,10 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (self.x, self.y))
         self.wait_frames = 5
         self.collision = False
-        self.collision = None
-        
-
+     
     
     def destroy(self):
+        """Checks if bullet has left the screen. If so destroys the bullet"""
         if self.x >= 1100 or self.x <= -100:
             self.kill()
             return None
