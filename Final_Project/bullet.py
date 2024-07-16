@@ -33,9 +33,10 @@ class Bullet(pygame.sprite.Sprite):
             self.collision_sprite = pygame.sprite.spritecollideany(self, group)
         if self.collision:
             self.wait_frames-=1
-            if self.wait_frames <=0:
-                pygame.sprite.Sprite.kill(self)
-                pygame.sprite.Sprite.kill(self.collision_sprite)
+        if self.wait_frames <=0:
+            pygame.sprite.Sprite.kill(self)
+            pygame.sprite.Sprite.kill(self.collision_sprite)
+
         self.x += self.velocity * math.cos(math.radians(self.angle+90)) 
         self.y -= self.velocity * math.sin(math.radians(self.angle+90))
         self.rect = self.image.get_rect(center = (self.x, self.y))  

@@ -18,9 +18,9 @@ ship_group.add(ship1)
 asteroid_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 ASTEROID_SPAWN = pygame.event.custom_type()
-NEW_WAVE_EVENT = pygame.event.custom_type()
-NEW_WAVE_END = pygame.event.custom_type()
+WAVE_TEXT_EVENT = pygame.event.custom_type()
 BEGIN_NEW_WAVE = pygame.event.custom_type()
+KEYBOARD_UNBLOCK_EVENT = pygame.event.custom_type()
 font_index = 0
 
 def main():
@@ -36,34 +36,46 @@ def main():
     game_active = True
     wave_timer = 1
     wave_text = screen_height*.2
-    start_time = 0
-    pygame.time.set_timer((NEW_WAVE_EVENT), 1000, 1)
-    #Loop to display first wave text before game begins
-    while not pygame.event.peek(NEW_WAVE_EVENT): 
-        draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, wave_text),"Wave 1", 100, .007, (700, 120))
-        pygame.display.update()
-    pygame.time.set_timer((ASTEROID_SPAWN), 750-int(math.log(wave_timer)*750))
-    pygame.time.set_timer((NEW_WAVE_EVENT), 35000, 1)
-
+    
+    pygame.time.set_timer((WAVE_TEXT_EVENT), 10, 1)
+    bgm_sound = pygame.mixer.Sound("sounds\\bgm\\bgm.mp3")
+    bgm_sound.play()
     while True:
-        wave_timer = int(get_time_alive(start_time, True)/35)+1#Every 35 seconds new wave will begin
+        #Replays the bgm music once it ends
+        if(get_time_alive(start_time, True)>= 142):
+            bgm_sound.play
         pressed = pygame.key.get_pressed()
+        #---------------------------EVENT LOOP----------------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit
                 exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: 
-                bullet_group.add(Bullet(ship1.x, ship1.y, ship1.angle))
-            if event.type == ASTEROID_SPAWN and game_active:
-                asteroid_group.add(Asteroid(screen_height, screen_width, wave_timer, ship1.x, ship1.y))
-            if event.type == NEW_WAVE_EVENT and game_active:
+            if event.type == WAVE_TEXT_EVENT and game_active:
                 pygame.event.set_blocked(ASTEROID_SPAWN)
-                pygame.time.set_timer((ASTEROID_SPAWN), 750-int(math.log(wave_timer)*250))
                 wave_text = screen_height*.2
             if event.type == BEGIN_NEW_WAVE and game_active:
+                wave_timer = int(get_time_alive(start_time, True)/35)+1
                 pygame.event.set_allowed(ASTEROID_SPAWN)
-                pygame.time.set_timer((NEW_WAVE_EVENT), 35000, 1)
-
+                pygame.time.set_timer((ASTEROID_SPAWN), 750-int(math.log(wave_timer)*250))
+                pygame.time.set_timer((WAVE_TEXT_EVENT), 35000, 1)
+            if event.type == ASTEROID_SPAWN and game_active:
+                asteroid_group.add(Asteroid(screen_height, screen_width, wave_timer, ship1.x, ship1.y))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: 
+                if not game_active:
+                    start_time = int(pygame.time.get_ticks()/1000)
+                    bullet_group.empty()
+                    asteroid_group.empty()
+                    pygame.event.clear()
+                    pygame.time.set_timer(WAVE_TEXT_EVENT, 1, 1)#Event.post was not working
+                    game_active = True
+                else:
+                    bullet_group.add(Bullet(ship1.x, ship1.y, ship1.angle))
+                    bullet_sound = pygame.mixer.Sound("sounds\\fire\\fire.wav")
+                    bullet_sound.play()
+            if event.type == KEYBOARD_UNBLOCK_EVENT:
+                pygame.event.set_allowed(pygame.KEYDOWN)
+                
+    #--------------------------------MAIN GAME LOOP-----------------------------------
         if game_active:
             screen.fill((0,0,0))
             draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}", 100)
@@ -74,6 +86,11 @@ def main():
                 wave_text-= .8            
                 pygame.time.set_timer(BEGIN_NEW_WAVE, 400, 1)
             if ship1.check_collision(asteroid_group):
+                #ship_group.play_death_animation()
+                pygame.event.set_blocked(pygame.KEYDOWN)
+                pygame.time.set_timer(KEYBOARD_UNBLOCK_EVENT, 400, 1)
+                crash_sound = pygame.mixer.Sound("sounds\\bangsmall\\bangsmall.wav")
+                crash_sound.play()
                 game_active = False
             #Key inputs
             if pressed[pygame.K_w]:
@@ -81,10 +98,10 @@ def main():
 
             if pressed[pygame.K_a]:                     
                 ship1.move_left()
-
+                
             if pressed[pygame.K_s]:                                 
                 ship1.move_backward()
-
+            
             if pressed[pygame.K_d]:                               
                 ship1.move_right()
 
@@ -98,26 +115,17 @@ def main():
             bullet_group.draw(screen)
             ship_group.update()
             ship_group.draw(screen)
-             
-            
+    #-------------DEATH SCREEN LOOP-------------------------------
         else:
-            #This condition displays the death screen and waits for input to either restart game or exit
             screen.fill((0,0,0))
             bullet_group.draw(screen)
-            ship_group.draw(screen)
+            ship1.original_image.blit(screen, (ship1.x, ship1.y))
             asteroid_group.draw(screen)
             display_death_screen_text(time_alive)
             ship1.reset_values() 
-            if pressed[pygame.K_SPACE]:
-                start_time = int(pygame.time.get_ticks()/1000)
-                bullet_group.empty()
-                asteroid_group.empty()
-                game_active = True
-            elif pressed[pygame.K_ESCAPE]:
+            if pressed[pygame.K_ESCAPE]:
                 pygame.quit
                 exit()
-        
-                
         pygame.display.update()
         clock.tick(60)
 
@@ -131,8 +139,6 @@ def get_time_alive(start_time: int, integer:bool = False ):
     elif time_alive >= 60:
         time_alive = f"{int(time_alive/60)}".zfill(2)+":"+f"{time_alive%60}".zfill(2)
     return time_alive
-
-
 
 def draw_blinking_text(font_type: str, coords:tuple, message:str, font_size: int, blink_interval = .01, blank_surface_size = (700, 100), font_color = (255,255,255)):
     """Draws blinking text using specfied coordinates, font_type, size, and message. Blink speed can be optionally altered. Every call of this function will stack speed of any other text called by this function. All functions called will be in sync"""

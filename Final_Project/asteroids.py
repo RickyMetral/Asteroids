@@ -4,7 +4,6 @@ import pygame
 import random
 import numpy as np
 import math
-from ship import Ship
 
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self,screen_height, screen_width, wave, ship_x, ship_y):
@@ -12,7 +11,7 @@ class Asteroid(pygame.sprite.Sprite):
         min_size = .15
         max_size = .6
         asteroids = ["asteroid_images/asteroid1.png", "asteroid_images/asteroid2.png", "asteroid_images/asteroid3.png", "asteroid_images/asteroid4.png", "asteroid_images/asteroid5.png", "asteroid_images/asteroid6.png", "asteroid_images/asteroid7.png"]
-        self.image = pygame.image.load(asteroids[random.randrange(7)])
+        self.image = pygame.image.load(asteroids[random.randrange(7)]).convert()
         self.velocity  = 5*math.log(wave+1)
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -30,11 +29,12 @@ class Asteroid(pygame.sprite.Sprite):
         self.distance = math.sqrt((self.point[0]-self.x)**2 + (self.point[1]-self.y)**2)
         self.vector =np.array([(self.point[0]-self.x), (self.point[1]-self.y)])
         self.image = pygame.transform.rotozoom(self.image, random.randrange(0, 360), random.uniform(min_size, max_size))
+        self.image.set_colorkey((0,0,0))
+        #self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center = (self.x, self.y))
-        self.point[0] += 5*self.vector[0]
-        self.point[1] += 5*self.vector[1]
+        self.point[0] += 20*self.vector[0]
+        self.point[1] += 20*self.vector[1]
 
- 
     def destroy(self):
         """Checks and destroys asteroid if too far out of screen bounds"""
         if self.x >= 1100 or self.x <= -100:
