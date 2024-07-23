@@ -10,13 +10,11 @@ class Bullet(pygame.sprite.Sprite):
         self.x = ship_x
         self.y = ship_y
         self.angle = ship_angle
-        self.original_image = pygame.image.load("bullet2.png")
+        self.original_image = pygame.image.load("Png\\bullet.png")
         self.image =pygame.transform.rotozoom(self.original_image, self.angle+90, .25)
         self.rect = self.image.get_rect(center = (self.x, self.y))
-        self.wait_frames = 5
+        self.wait_frames = 2
         self.collision = False
-     
-    
     def destroy(self):
         """Checks if bullet has left the screen. If so destroys the bullet"""
         if self.x >= 1100 or self.x <= -100:

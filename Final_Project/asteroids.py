@@ -10,8 +10,7 @@ class Asteroid(pygame.sprite.Sprite):
         super().__init__()
         min_size = .15
         max_size = .6
-        asteroids = ["asteroid_images/asteroid1.png", "asteroid_images/asteroid2.png", "asteroid_images/asteroid3.png", "asteroid_images/asteroid4.png", "asteroid_images/asteroid5.png", "asteroid_images/asteroid6.png", "asteroid_images/asteroid7.png"]
-        self.image = pygame.image.load(asteroids[random.randrange(7)]).convert()
+        self.image = pygame.image.load(f"Png\\asteroid_images/asteroid{random.randrange(1, 7)}.png").convert()
         self.velocity  = 5*math.log(wave+1)
         self.screen_width = screen_width
         self.screen_height = screen_height

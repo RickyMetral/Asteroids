@@ -36,30 +36,31 @@ def main():
     game_active = True
     wave_timer = 1
     wave_text = screen_height*.2
-    
     pygame.time.set_timer((WAVE_TEXT_EVENT), 10, 1)
-    bgm_sound = pygame.mixer.Sound("sounds\\bgm\\bgm.mp3")
-    bgm_sound.play()
+    pygame.mixer.music.load("sounds\\bgm\\bgm.mp3")
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(.5)
     while True:
-        #Replays the bgm music once it ends
-        if(get_time_alive(start_time, True)>= 142):
-            bgm_sound.play
-        pressed = pygame.key.get_pressed()
         #---------------------------EVENT LOOP----------------------------
+        pressed = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit
                 exit()
+
             if event.type == WAVE_TEXT_EVENT and game_active:
                 pygame.event.set_blocked(ASTEROID_SPAWN)
                 wave_text = screen_height*.2
+
             if event.type == BEGIN_NEW_WAVE and game_active:
                 wave_timer = int(get_time_alive(start_time, True)/35)+1
                 pygame.event.set_allowed(ASTEROID_SPAWN)
                 pygame.time.set_timer((ASTEROID_SPAWN), 750-int(math.log(wave_timer)*250))
                 pygame.time.set_timer((WAVE_TEXT_EVENT), 35000, 1)
+
             if event.type == ASTEROID_SPAWN and game_active:
                 asteroid_group.add(Asteroid(screen_height, screen_width, wave_timer, ship1.x, ship1.y))
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: 
                 if not game_active:
                     start_time = int(pygame.time.get_ticks()/1000)
@@ -67,11 +68,13 @@ def main():
                     asteroid_group.empty()
                     pygame.event.clear()
                     pygame.time.set_timer(WAVE_TEXT_EVENT, 1, 1)#Event.post was not working
+                    ship1.reset_values()
                     game_active = True
                 else:
                     bullet_group.add(Bullet(ship1.x, ship1.y, ship1.angle))
                     bullet_sound = pygame.mixer.Sound("sounds\\fire\\fire.wav")
                     bullet_sound.play()
+                    
             if event.type == KEYBOARD_UNBLOCK_EVENT:
                 pygame.event.set_allowed(pygame.KEYDOWN)
                 
@@ -80,13 +83,14 @@ def main():
             screen.fill((0,0,0))
             draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}", 100)
             time_alive = get_time_alive(start_time, True)
+
             if not asteroid_group and pygame.event.get_blocked(ASTEROID_SPAWN) and wave_text >-50:
                 #Draws the next wave's number repeatedlty until it comes off screen and asteroids begin spawning 400 milisecnonds later
                 draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, wave_text),f"Wave {wave_timer}", 100, .03)
                 wave_text-= .8            
                 pygame.time.set_timer(BEGIN_NEW_WAVE, 400, 1)
+            #Collsion Check
             if ship1.check_collision(asteroid_group):
-                #ship_group.play_death_animation()
                 pygame.event.set_blocked(pygame.KEYDOWN)
                 pygame.time.set_timer(KEYBOARD_UNBLOCK_EVENT, 400, 1)
                 crash_sound = pygame.mixer.Sound("sounds\\bangsmall\\bangsmall.wav")
@@ -98,7 +102,7 @@ def main():
 
             if pressed[pygame.K_a]:                     
                 ship1.move_left()
-                
+
             if pressed[pygame.K_s]:                                 
                 ship1.move_backward()
             
@@ -118,11 +122,12 @@ def main():
     #-------------DEATH SCREEN LOOP-------------------------------
         else:
             screen.fill((0,0,0))
-            bullet_group.draw(screen)
+            ship1.play_death_animation(screen)
+            bullet_group.draw(screen)   
             ship1.original_image.blit(screen, (ship1.x, ship1.y))
             asteroid_group.draw(screen)
             display_death_screen_text(time_alive)
-            ship1.reset_values() 
+            
             if pressed[pygame.K_ESCAPE]:
                 pygame.quit
                 exit()

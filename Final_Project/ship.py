@@ -14,15 +14,18 @@ class Ship(pygame.sprite.Sprite):
         self.x_momentum = 0
         self.max_momentum = 5   
         self.distance = 3 #Proportional to distance traveleled in any direction
-        self.original_image = pygame.image.load("ship.png")#Image of ship
+        self.original_image = pygame.image.load("Png\ship.png").convert()#Image of ship
         self.image = pygame.transform.rotozoom(self.original_image, 0, .2)
-        self.original_circle = pygame.image.load("circle.png").convert_alpha()
+        self.image.set_colorkey((0,0,0))
+        self.original_circle = pygame.image.load("Png\circle.png").convert_alpha()
         self.circle = pygame.transform.rotozoom(self.original_circle, 0, .1)#Image of bounding circle around mouse
-        #self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center = (self.x, self.y))
         self.screen_width = screen_width
         self.screen_height = screen_height
-         
+        self.index = 1
+        self.explosion_image = pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png").convert_alpha()
+        pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png")
     def check_collision(ship, collide_group):
         """Checks for ship collision with given pygame group"""
         for asteroid in collide_group:
@@ -82,15 +85,17 @@ class Ship(pygame.sprite.Sprite):
             self.y_momentum = self.max_momentum
 
         elif self.y_momentum <= -self.max_momentum:
-            self.y_momentum = -self.max_momentum
+            self.y_momentum =-self.max_momentum
 
-    def play_death_animation(self):
-        pygame.image.load
-
-
+    def play_death_animation(self, screen):
+            while(self.index<9.8):
+                self.index+=.1
+                pygame.Surface.blit( screen, self.explosion_image,self.x, self.y)
         
+
     def reset_values(self):
         """Resets values of ship to default"""
+        self.index = 1
         self.x,self.y = self.screen_width/2, self.screen_height/2
         self.angle = 0 #Angle of ship in degrees where normal is directly North
         self.reference_vector = np.array([0,300])
@@ -100,7 +105,6 @@ class Ship(pygame.sprite.Sprite):
     
     def update(self):
         """Updates all the ship vector positions, rectangles, angle of ship, and applies momentum to ship"""
-        print(self.image.get_colorkey())
         self.mouse_x, self.mouse_y = pygame.mouse.get_pos() 
         self.new_vector = np.array([self.mouse_x-self.x, (self.mouse_y-self.y)*-1])#Converts the mouse vector to regular cartesian coordinates instead of using screen coords
         #Solves for angle between ship and mouse by using identity of dot product between converted vector and the reference vector
@@ -111,10 +115,9 @@ class Ship(pygame.sprite.Sprite):
         self.x+= self.x_momentum*self.distance
         self.y -= self.y_momentum *self.distance
         self.limit_momentum()
-        self.image = pygame.transform.rotozoom(self.original_image, self.angle, .15)
+        self.image = pygame.transform.rotozoom(self.original_image, self.angle, .15).convert()
+        self.image.set_colorkey((0,0,0))
         self.rect = self.image.get_rect(center = (self.x, self.y))
         self.circle_rect = self.circle.get_rect(center =(self.mouse_x, self.mouse_y))# Rect for limiting circle drawn around mouse to avoid glitching when holding W near the mouse
         self.ship_border_check()
-        
-       
        
