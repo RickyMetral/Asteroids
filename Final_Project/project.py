@@ -50,6 +50,7 @@ def main():
 
             if event.type == WAVE_TEXT_EVENT and game_active:
                 pygame.event.set_blocked(ASTEROID_SPAWN)
+                wave_timer = int(get_time_alive(start_time, True)/35)+1
                 wave_text = screen_height*.2
 
             if event.type == BEGIN_NEW_WAVE and game_active:
@@ -81,8 +82,7 @@ def main():
     #--------------------------------MAIN GAME LOOP-----------------------------------
         if game_active:
             screen.fill((0,0,0))
-            draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}", 100)
-            time_alive = get_time_alive(start_time, True)
+            draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}-----{wave_timer}", 100)
 
             if not asteroid_group and pygame.event.get_blocked(ASTEROID_SPAWN) and wave_text >-50:
                 #Draws the next wave's number repeatedlty until it comes off screen and asteroids begin spawning 400 milisecnonds later
@@ -90,11 +90,12 @@ def main():
                 wave_text-= .8            
                 pygame.time.set_timer(BEGIN_NEW_WAVE, 400, 1)
             #Collsion Check
-            if ship1.check_collision(asteroid_group):
+            if ship1.check_collision( asteroid_group):
                 pygame.event.set_blocked(pygame.KEYDOWN)
                 pygame.time.set_timer(KEYBOARD_UNBLOCK_EVENT, 400, 1)
                 crash_sound = pygame.mixer.Sound("sounds\\bangsmall\\bangsmall.wav")
                 crash_sound.play()
+                time_alive = get_time_alive(start_time, True)
                 game_active = False
             #Key inputs
             if pressed[pygame.K_w]:
@@ -127,10 +128,10 @@ def main():
             ship1.original_image.blit(screen, (ship1.x, ship1.y))
             asteroid_group.draw(screen)
             display_death_screen_text(time_alive)
-            
             if pressed[pygame.K_ESCAPE]:
                 pygame.quit
                 exit()
+
         pygame.display.update()
         clock.tick(60)
 

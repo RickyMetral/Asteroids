@@ -26,13 +26,12 @@ class Ship(pygame.sprite.Sprite):
         self.index = 1
         self.explosion_image = pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png").convert_alpha()
         pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png")
+
     def check_collision(ship, collide_group):
         """Checks for ship collision with given pygame group"""
-        for asteroid in collide_group:
-            if pygame.sprite.collide_mask(ship, asteroid) == None:
-                return False
-            else:
-                return True
+        if (pygame.sprite.spritecollide(ship, collide_group,False)):
+            sprite = (pygame.sprite.spritecollide(ship, collide_group,False))
+            return pygame.sprite.collide_mask(ship, sprite[0])
         
     def move_forward(self):
         """Steps the ship forward proportionally in whatever direction ship is facing and increases momentum"""
@@ -90,8 +89,8 @@ class Ship(pygame.sprite.Sprite):
     def play_death_animation(self, screen):
             while(self.index<9.8):
                 self.index+=.1
-                pygame.Surface.blit( screen, self.explosion_image,self.x, self.y)
-        
+                pygame.Surface.blit(self.explosion_image, screen, (self.x, self.y))
+            return 0 
 
     def reset_values(self):
         """Resets values of ship to default"""

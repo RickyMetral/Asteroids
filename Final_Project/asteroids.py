@@ -29,8 +29,8 @@ class Asteroid(pygame.sprite.Sprite):
         self.vector =np.array([(self.point[0]-self.x), (self.point[1]-self.y)])
         self.image = pygame.transform.rotozoom(self.image, random.randrange(0, 360), random.uniform(min_size, max_size))
         self.image.set_colorkey((0,0,0))
-        #self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect(center = (self.x, self.y))
+        self.maks = pygame.mask.from_surface(self.image)
         self.point[0] += 20*self.vector[0]
         self.point[1] += 20*self.vector[1]
 
