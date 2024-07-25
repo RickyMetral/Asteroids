@@ -66,7 +66,7 @@ def main():
                 if not game_active:
                     start_time = int(pygame.time.get_ticks()/1000)
                     bullet_group.empty()
-                    asteroid_group.empty()
+                    asteroid_group.empty(.5)
                     pygame.event.clear()
                     pygame.time.set_timer(WAVE_TEXT_EVENT, 1, 1)#Event.post was not working
                     ship1.reset_values()
@@ -82,7 +82,7 @@ def main():
     #--------------------------------MAIN GAME LOOP-----------------------------------
         if game_active:
             screen.fill((0,0,0))
-            draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}-----{wave_timer}", 100)
+            draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}", 100)
 
             if not asteroid_group and pygame.event.get_blocked(ASTEROID_SPAWN) and wave_text >-50:
                 #Draws the next wave's number repeatedlty until it comes off screen and asteroids begin spawning 400 milisecnonds later
@@ -149,15 +149,13 @@ def get_time_alive(start_time: int, integer:bool = False ):
 def draw_blinking_text(font_type: str, coords:tuple, message:str, font_size: int, blink_interval = .01, blank_surface_size = (700, 100), font_color = (255,255,255)):
     """Draws blinking text using specfied coordinates, font_type, size, and message. Blink speed can be optionally altered. Every call of this function will stack speed of any other text called by this function. All functions called will be in sync"""
     global font_index
-    off_text_surface = pygame.Surface(blank_surface_size)
     font = pygame.font.Font(font_type, font_size)
-    font_text =[font.render(message, False, font_color), font.render(message, False, font_color), off_text_surface]
-    font_rect = font_text[int(font_index)].get_rect(center =coords)
-    screen.blit(font_text[int(font_index)], font_rect)
-    font_index += blink_interval
-    if font_index >= 2.8: #Resets the blink timer for the Retry and Game over message
+    font_rect = font.render(message, False, font_color).get_rect(center =coords)
+    font_index += blink_interval    
+    if font_index <= 1.5: #Resets the blink timer for the Retry and Game over message
+        screen.blit(font.render(message, False, font_color), font_rect)
+    if font_index >2.5:
         font_index = 0
-
 def display_death_screen_text(time_alive):
     """Displays all relevant text and surfaces for the death screen. Also handles blinking for text"""
     #GAME OVER message
