@@ -66,7 +66,7 @@ def main():
                 if not game_active:
                     start_time = int(pygame.time.get_ticks()/1000)
                     bullet_group.empty()
-                    asteroid_group.empty(.5)
+                    asteroid_group.empty()
                     pygame.event.clear()
                     pygame.time.set_timer(WAVE_TEXT_EVENT, 1, 1)#Event.post was not working
                     ship1.reset_values()
@@ -83,12 +83,12 @@ def main():
         if game_active:
             screen.fill((0,0,0))
             draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, 600),f"{get_time_alive(start_time, True)}", 100)
-
             if not asteroid_group and pygame.event.get_blocked(ASTEROID_SPAWN) and wave_text >-50:
                 #Draws the next wave's number repeatedlty until it comes off screen and asteroids begin spawning 400 milisecnonds later
                 draw_blinking_text("pokemon-gb-font\PokemonGb-RAeo.ttf",(screen_width/2, wave_text),f"Wave {wave_timer}", 100, .03)
                 wave_text-= .8            
                 pygame.time.set_timer(BEGIN_NEW_WAVE, 400, 1)
+
             #Collsion Check
             if ship1.check_collision( asteroid_group):
                 pygame.event.set_blocked(pygame.KEYDOWN)
@@ -96,7 +96,9 @@ def main():
                 crash_sound = pygame.mixer.Sound("sounds\\bangsmall\\bangsmall.wav")
                 crash_sound.play()
                 time_alive = get_time_alive(start_time, True)
+                ship1.original_image = ship1.explosion_image
                 game_active = False
+
             #Key inputs
             if pressed[pygame.K_w]:
                 ship1.move_forward()
@@ -110,10 +112,6 @@ def main():
             if pressed[pygame.K_d]:                               
                 ship1.move_right()
 
-            if pressed[pygame.K_0]:  
-                time_alive = get_time_alive(start_time)                   
-                game_active = False
-            
             asteroid_group.update()
             asteroid_group.draw(screen)   
             bullet_group.update(asteroid_group)   
@@ -123,9 +121,9 @@ def main():
     #-------------DEATH SCREEN LOOP-------------------------------
         else:
             screen.fill((0,0,0))
-            ship1.play_death_animation(screen)
+            ship1.play_death_animation()
+            ship_group.draw(screen)
             bullet_group.draw(screen)   
-            ship1.original_image.blit(screen, (ship1.x, ship1.y))
             asteroid_group.draw(screen)
             display_death_screen_text(time_alive)
             if pressed[pygame.K_ESCAPE]:
@@ -156,6 +154,7 @@ def draw_blinking_text(font_type: str, coords:tuple, message:str, font_size: int
         screen.blit(font.render(message, False, font_color), font_rect)
     if font_index >2.5:
         font_index = 0
+
 def display_death_screen_text(time_alive):
     """Displays all relevant text and surfaces for the death screen. Also handles blinking for text"""
     #GAME OVER message
@@ -172,3 +171,4 @@ if __name__ == "__main__":
     main()
     pygame.quit()
     exit()
+    

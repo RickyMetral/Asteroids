@@ -25,7 +25,14 @@ class Ship(pygame.sprite.Sprite):
         self.screen_height = screen_height
         self.index = 1
         self.explosion_image = pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png").convert_alpha()
-        pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png")
+
+    def play_death_animation(self):
+        if self.index <9.4:
+            self.index +=.5
+            self.original_image = pygame.image.load(f"Png\ShipExplosion\explosion{int(self.index)}.png").convert_alpha()
+            self.image = pygame.transform.rotozoom(self.original_image, self.angle, .15).convert()
+            self.image.set_colorkey((255,255,255))
+
 
     def check_collision(ship, collide_group):
         """Checks for ship collision with given pygame group"""
@@ -59,7 +66,6 @@ class Ship(pygame.sprite.Sprite):
         """Moves Ship right of where ship is facing and increases momentum"""
         self.x += self.distance/2 * math.cos(math.radians(self.angle))
         self.y -= self.distance/2 * math.sin(math.radians(self.angle))
-        self.x_momentum += (math.cos(math.radians(self.angle)))/60
         self.y_momentum +=(math.sin(math.radians(self.angle)))/60
 
     def ship_border_check(self):
@@ -86,15 +92,10 @@ class Ship(pygame.sprite.Sprite):
         elif self.y_momentum <= -self.max_momentum:
             self.y_momentum =-self.max_momentum
 
-    def play_death_animation(self, screen):
-            while(self.index<9.8):
-                self.index+=.1
-                pygame.Surface.blit(self.explosion_image, screen, (self.x, self.y))
-            return 0 
-
     def reset_values(self):
         """Resets values of ship to default"""
         self.index = 1
+        self.original_image = pygame.image.load("Png\ship.png").convert()#Image of ship
         self.x,self.y = self.screen_width/2, self.screen_height/2
         self.angle = 0 #Angle of ship in degrees where normal is directly North
         self.reference_vector = np.array([0,300])
@@ -111,7 +112,7 @@ class Ship(pygame.sprite.Sprite):
             self.angle = math.degrees(math.acos((self.reference_vector.dot(self.new_vector)/(self.reference_vector_magnitude*math.sqrt((self.new_vector[0])**2 + (self.new_vector[1])**2))))) 
         else: 
             self.angle = -1*(math.degrees(math.acos((self.reference_vector.dot(self.new_vector)/(self.reference_vector_magnitude*math.sqrt((self.new_vector[0])**2 + (self.new_vector[1])**2))))))
-        self.x+= self.x_momentum*self.distance
+        self.x += self.x_momentum*self.distance
         self.y -= self.y_momentum *self.distance
         self.limit_momentum()
         self.image = pygame.transform.rotozoom(self.original_image, self.angle, .15).convert()
