@@ -8,3 +8,6 @@ __pycache__
 #Studio Code Build tools 
 vs_BuildTools.exe   
 .vscode
+
+#Pyinstaller .exe build tools
+build
