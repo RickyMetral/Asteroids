@@ -6,7 +6,7 @@ The game itself has been turned into a ```.exe``` file within ```dist``` using t
 
 All sounds in the game were downloaded from https://classicgaming.cc/classics/asteroids/sounds and the ship explosion png's were retrieved from https://www.pngitem.com/download/hwmJTxJ_pixel-effect-png-asteroid-explosion-sprite-transparent-png/. All other assets were created by me :). 
 
-To run the game simply clone the repo and run ```Asteroids.exe``` within ```dist``` and your all set. Enjoy! 
+To run the game simply fork the repo and run ```Asteroids.exe``` within ```dist``` and your all set. Enjoy! 
 
 
 

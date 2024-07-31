@@ -10,4 +10,4 @@ vs_BuildTools.exe
 .vscode
 
 #Pyinstaller .exe build tools
-build
+# build
