@@ -40,7 +40,9 @@ def main():
     pygame.time.set_timer((WAVE_TEXT_EVENT), 10, 1)
     pygame.mixer.music.load("sounds\\bgm\\bgm.mp3")
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(.5)
+    pygame.mixer.music.set_volume(.1)
+    bullet_sound = pygame.mixer.Sound("sounds\\fire\\fire.wav")
+    bullet_sound.set_volume(.3)
     while True:
         #---------------------------EVENT LOOP----------------------------
         pressed = pygame.key.get_pressed()
@@ -74,9 +76,8 @@ def main():
                     game_active = True
                 else:
                     bullet_group.add(Bullet(ship1.x, ship1.y, ship1.angle))
-                    bullet_sound = pygame.mixer.Sound("sounds\\fire\\fire.wav")
                     bullet_sound.play()
-                    
+
             if event.type == KEYBOARD_UNBLOCK_EVENT:
                 pygame.event.set_allowed(pygame.KEYDOWN)
                 
